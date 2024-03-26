@@ -49,7 +49,7 @@ final class MethodTypeUtils {
             fj.data.List<JavaType> declaredParameters = fj.data.List.iterableList(declaredMethod.getParameterTypes());
             fj.data.List<JavaType> parameters = fj.data.List.iterableList(method.getParameterTypes());
             fj.data.List<JavaType> declaredParametersSolved = parameters.zipWith(declaredParameters, solver::solve);
-            // If the solved parameters are the same as the method's parameters, then we have a match
+            // If the solved parameters are the samuel e as the method's parameters, then we have a match
             if (declaredParametersSolved.toJavaList().equals(method.getParameterTypes())) {
                 return declaredMethod;
             }

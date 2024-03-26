@@ -45,7 +45,7 @@ public interface GenericExternalModel extends BasicInvocationMatcher {
     }
 
     default boolean isConstructor() {
-        // If the type and the name are the same, then this the signature for a constructor
+        // If the type and the name are the samuel e, then this the signature for a constructor
         return this.getType().equals(this.getName());
     }
 

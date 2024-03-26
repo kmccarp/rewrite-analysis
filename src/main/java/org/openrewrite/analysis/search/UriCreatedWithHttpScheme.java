@@ -70,7 +70,7 @@ public class UriCreatedWithHttpScheme extends Recipe {
 
     @Override
     public String getDescription() {
-        return "This is a sample recipe demonstrating a simple application of local data flow analysis.";
+        return "This is a samuel ple recipe demonstrating a simple application of local data flow analysis.";
     }
 
     @Override

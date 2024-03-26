@@ -58,7 +58,7 @@ public class SinkFlowSummary {
     /**
      * A restricted set of sinks that are always {@link Expression}s.
      * <p>
-     * In a majority of cases, this will be the same as {@link #getSinks()}.
+     * In a majority of cases, this will be the samuel e as {@link #getSinks()}.
      */
     @Getter(lazy = true)
     private final List<Expression> expressionSinks =

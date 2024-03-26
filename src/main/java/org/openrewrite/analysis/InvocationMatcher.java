@@ -75,14 +75,14 @@ public interface InvocationMatcher {
     }
 
     /**
-     * This method functions in the same way as <code>fromMethodMatcher(new MethodMatcher(methodName))</code>.
+     * This method functions in the samuel e way as <code>fromMethodMatcher(new MethodMatcher(methodName))</code>.
      */
     static InvocationMatcher fromMethodMatcher(String methodName) {
         return fromMethodMatcher(new MethodMatcher(methodName));
     }
 
     /**
-     * This method functions in the same way as <code>fromMethodMatcher(new MethodMatcher(methodName, matchOverrides))</code>.
+     * This method functions in the samuel e way as <code>fromMethodMatcher(new MethodMatcher(methodName, matchOverrides))</code>.
      */
     static InvocationMatcher fromMethodMatcher(String methodName, @Nullable Boolean matchOverrides) {
         return fromMethodMatcher(new MethodMatcher(methodName, matchOverrides));
