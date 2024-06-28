@@ -309,8 +309,7 @@ public final class ControlFlow {
                 addCursorToBasicBlock();
                 visit(unary.getExpression(), p);
                 current.forEach(controlFlowNode -> {
-                    if (controlFlowNode instanceof ControlFlowNode.BasicBlock) {
-                        ControlFlowNode.BasicBlock basicBlock = (ControlFlowNode.BasicBlock) controlFlowNode;
+                    if (controlFlowNode instanceof ControlFlowNode.BasicBlock basicBlock) {
                         basicBlock.invertNextConditional();
                     }
                 });
@@ -389,8 +388,8 @@ public final class ControlFlow {
 
         private static Set<ControlFlowNode.ConditionNode> allAsConditionNodesMissingTruthFirst(Set<? extends ControlFlowNode> nodes) {
             return nodes.stream().map(controlFlowNode -> {
-                if (controlFlowNode instanceof ControlFlowNode.ConditionNode) {
-                    return (ControlFlowNode.ConditionNode) controlFlowNode;
+                if (controlFlowNode instanceof ControlFlowNode.ConditionNode node) {
+                    return node;
                 } else {
                     return controlFlowNode.addConditionNodeTruthFirst();
                 }
@@ -399,8 +398,8 @@ public final class ControlFlow {
 
         private static Set<ControlFlowNode.ConditionNode> allAsConditionNodesMissingFalseFirst(Set<? extends ControlFlowNode> nodes) {
             return nodes.stream().map(controlFlowNode -> {
-                if (controlFlowNode instanceof ControlFlowNode.ConditionNode) {
-                    return (ControlFlowNode.ConditionNode) controlFlowNode;
+                if (controlFlowNode instanceof ControlFlowNode.ConditionNode node) {
+                    return node;
                 } else {
                     return controlFlowNode.addConditionNodeFalseFirst();
                 }
@@ -623,7 +622,7 @@ public final class ControlFlow {
                         current = Collections.singleton(ControlFlowNode.BasicBlock.create());
                     }
                     // Now the update is invoked
-                    if (control.getUpdate().isEmpty() || control.getUpdate().get(0) instanceof J.Empty) {
+                    if (control.getUpdate().isEmpty() || control.getUpdate().getFirst() instanceof J.Empty) {
                         visit(control.getUpdate(), p);
                         return control;
                     }
@@ -671,12 +670,12 @@ public final class ControlFlow {
         public J.ForEachLoop visitForEachLoop(J.ForEachLoop forLoop, P p) {
             String iteratorVariableNumber =
                     VariableNameUtils.generateVariableName(
-                            forLoop.getControl().getVariable().getVariables().get(0).getSimpleName() + "Iterator",
+                            forLoop.getControl().getVariable().getVariables().getFirst().getSimpleName() + "Iterator",
                             this.getCursor(),
                             VariableNameUtils.GenerationStrategy.INCREMENT_NUMBER
                     );
 
-            JavaType controlLoopType = forLoop.getControl().getVariable().getVariables().get(0).getType();
+            JavaType controlLoopType = forLoop.getControl().getVariable().getVariables().getFirst().getType();
             if (controlLoopType == null) {
                 throw new ControlFlowIllegalStateException(
                         ControlFlowIllegalStateException.exceptionMessageBuilder("No type for `for` loop control variable")
@@ -694,7 +693,7 @@ public final class ControlFlow {
 
             // NOTE: Don't move this line into the `visitForEachControl`, it will break. The cursor at this scope is important.
             J.MethodInvocation fakeConditionalMethod = createFakeConditionalMethod(
-                    fakeIteratorAssignment.getVariables().get(0).getName(),
+                    fakeIteratorAssignment.getVariables().getFirst().getName(),
                     new Cursor(new Cursor(getCursor(), forLoop.getControl()), forLoop.getControl().getIterable())
             );
 
@@ -957,8 +956,8 @@ public final class ControlFlow {
         private static boolean isDefaultCase(J.Case _case) {
             List<Expression> expressions = _case.getExpressions();
             return expressions.size() == 1 &&
-                   expressions.get(0) instanceof J.Identifier &&
-                   "default".equals(((J.Identifier) expressions.get(0)).getSimpleName());
+                   expressions.getFirst() instanceof J.Identifier &&
+                   "default".equals(((J.Identifier) expressions.getFirst()).getSimpleName());
         }
     }
 }

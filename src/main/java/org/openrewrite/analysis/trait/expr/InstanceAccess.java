@@ -90,13 +90,11 @@ class InstanceAccessBase extends Top.Base implements InstanceAccess {
     static Validation<TraitErrors, InstanceAccessBase> viewOf(Cursor cursor) {
         Objects.requireNonNull(cursor, "cursor must not be null");
         Object maybeTree = cursor.getValue();
-        if (maybeTree instanceof J.FieldAccess) {
-            J.FieldAccess fieldAccess = (J.FieldAccess) maybeTree;
+        if (maybeTree instanceof J.FieldAccess fieldAccess) {
             if ("this".equals(fieldAccess.getName().getSimpleName()) || "super".equals(fieldAccess.getName().getSimpleName())) {
                 return Validation.success(new InstanceAccessBase(cursor, Either.right(fieldAccess)));
             }
-        } else if (maybeTree instanceof J.Identifier) {
-            J.Identifier identifier = (J.Identifier) maybeTree;
+        } else if (maybeTree instanceof J.Identifier identifier) {
             if ("this".equals(identifier.getSimpleName()) || "super".equals(identifier.getSimpleName())) {
                 return Validation.success(new InstanceAccessBase(cursor, Either.left(identifier)));
             }

@@ -79,23 +79,21 @@ public class ForwardFlow extends JavaVisitor<Integer> {
             taintStmt instanceof J.ForLoop) {
             // This occurs when an assignment occurs within the control parenthesis of a loop
             Statement body;
-            if (taintStmt instanceof J.WhileLoop) {
+            if (taintStmt instanceof J.WhileLoop loop) {
                 assert taintStmtCursorParent.getValue() instanceof J.WhileLoop : "taintStmtCursorParent is not a while loop";
-                body = ((J.WhileLoop) taintStmt).getBody();
-            } else if (taintStmt instanceof J.DoWhileLoop) {
+                body = loop.getBody();
+            } else if (taintStmt instanceof J.DoWhileLoop loop) {
                 assert taintStmtCursorParent.getValue() instanceof J.DoWhileLoop : "taintStmtCursorParent is not a do while loop";
-                body = ((J.DoWhileLoop) taintStmt).getBody();
+                body = loop.getBody();
             } else {
                 assert taintStmtCursorParent.getValue() instanceof J.ForLoop : "taintStmtCursorParent is not a for loop";
                 body = ((J.ForLoop) taintStmt).getBody();
             }
             analysis.visit(body, 0, taintStmtCursorParent);
-        } else if (taintStmt instanceof J.Try) {
-            J.Try _try = (J.Try) taintStmt;
+        } else if (taintStmt instanceof J.Try _try) {
             analysis.visit(_try.getBody(), 0, taintStmtCursorParent);
             analysis.visit(_try.getFinally(), 0, taintStmtCursorParent);
-        } else if (taintStmt instanceof J.MethodDeclaration) {
-            J.MethodDeclaration methodDeclaration = (J.MethodDeclaration) taintStmt;
+        } else if (taintStmt instanceof J.MethodDeclaration methodDeclaration) {
             assert taintStmtCursorParent.getValue() instanceof J.MethodDeclaration : "taintStmtCursorParent is not a method declaration";
             analysis.visit(methodDeclaration.getBody(), 0, taintStmtCursorParent);
         } else {
@@ -115,8 +113,7 @@ public class ForwardFlow extends JavaVisitor<Integer> {
         J.Block block = blockCursor.getValue();
         final List<String> declaredVariables = new ArrayList<>();
         for (Statement statement : block.getStatements()) {
-            if (statement instanceof J.VariableDeclarations) {
-                J.VariableDeclarations variableDeclarations = (J.VariableDeclarations) statement;
+            if (statement instanceof J.VariableDeclarations variableDeclarations) {
                 for (J.VariableDeclarations.NamedVariable variableDeclaration : variableDeclarations.getVariables()) {
                     declaredVariables.add(variableDeclaration.getSimpleName());
                 }
@@ -145,7 +142,7 @@ public class ForwardFlow extends JavaVisitor<Integer> {
 
         // Get the parent J
         J nextStartStatement = blockCursor.getParentOrThrow().firstEnclosing(J.class);
-        if (nextStartStatement instanceof J.Block && ((J.Block) nextStartStatement).getStatements().contains(block)) {
+        if (nextStartStatement instanceof J.Block block1 && block1.getStatements().contains(block)) {
             // If the parent J is a block, and the current block is a statement in the of the parent J,
             // then use it as the starting point.
             nextStartStatement = block;
@@ -157,24 +154,22 @@ public class ForwardFlow extends JavaVisitor<Integer> {
     }
 
     private static Set<Statement> getPossibleSubBlock(J j) {
-        if (j instanceof J.If) {
-            J.If _if = (J.If) j;
+        if (j instanceof J.If _if) {
             if (_if.getElsePart() != null) {
                 return Stream.of(_if.getThenPart(), _if.getElsePart().getBody()).collect(Collectors.toSet());
             } else {
                 return Collections.singleton(_if.getThenPart());
             }
         }
-        if (j instanceof J.WhileLoop) {
-            return Collections.singleton(((J.WhileLoop) j).getBody());
-        } else if (j instanceof J.DoWhileLoop) {
-            return Collections.singleton(((J.DoWhileLoop) j).getBody());
-        } else if (j instanceof J.ForLoop) {
-            return Collections.singleton(((J.ForLoop) j).getBody());
-        } else if (j instanceof J.ForEachLoop) {
-            return Collections.singleton(((J.ForEachLoop) j).getBody());
-        } else if (j instanceof J.Try) {
-            J.Try _try = (J.Try) j;
+        if (j instanceof J.WhileLoop loop) {
+            return Collections.singleton(loop.getBody());
+        } else if (j instanceof J.DoWhileLoop loop) {
+            return Collections.singleton(loop.getBody());
+        } else if (j instanceof J.ForLoop loop) {
+            return Collections.singleton(loop.getBody());
+        } else if (j instanceof J.ForEachLoop loop) {
+            return Collections.singleton(loop.getBody());
+        } else if (j instanceof J.Try _try) {
             return Stream.concat(
                             Stream.of(_try.getBody(), _try.getFinally()),
                             _try.getCatches().stream().map(J.Try.Catch::getBody)
@@ -313,8 +308,8 @@ public class ForwardFlow extends JavaVisitor<Integer> {
         public J visitAssignment(J.Assignment assignment, Integer integer) {
             J.Assignment a = (J.Assignment) super.visitAssignment(assignment, integer);
             Expression left = a.getVariable().unwrap();
-            if (left instanceof J.Identifier) {
-                String variableName = ((J.Identifier) left).getSimpleName();
+            if (left instanceof J.Identifier identifier) {
+                String variableName = identifier.getSimpleName();
                 if (flowsByIdentifier.peek().hasFlows(variableName) &&
                     flowsByIdentifier.peek().get(variableName).stream().allMatch(v -> v.getNode().getCursor().getValue() != a.getAssignment())) {
                     flowsByIdentifier.peek().remove(variableName);
@@ -400,9 +395,9 @@ public class ForwardFlow extends JavaVisitor<Integer> {
                             Expression unwrappedSelect = methodInvocation.getSelect().unwrap();
                             VariableNameToFlowGraph variableNameToFlowGraph =
                                     computeVariableAssignment(selectCursor, nextFlowGraph, spec);
-                            if (unwrappedSelect instanceof J.Identifier) {
+                            if (unwrappedSelect instanceof J.Identifier identifier) {
                                 // If the select is an identifier, then we can add it to the map of variable names to flow graphs
-                                String variableName = ((J.Identifier) unwrappedSelect).getSimpleName();
+                                String variableName = identifier.getSimpleName();
                                 variableNameToFlowGraph.identifierToFlow.put(variableName, nextFlowGraph);
                             }
                             return variableNameToFlowGraph;
@@ -429,9 +424,9 @@ public class ForwardFlow extends JavaVisitor<Integer> {
                                 Expression unwrappedArgument = expr.unwrap();
                                 VariableNameToFlowGraph variableNameToFlowGraph =
                                         computeVariableAssignment(argumentCursor, nextFlowGraph, spec);
-                                if (unwrappedArgument instanceof J.Identifier) {
+                                if (unwrappedArgument instanceof J.Identifier identifier) {
                                     // If the argument is an identifier, then we can add it to the map of variable names to flow graphs
-                                    String variableName = ((J.Identifier) unwrappedArgument).getSimpleName();
+                                    String variableName = identifier.getSimpleName();
                                     variableNameToFlowGraph.identifierToFlow.put(variableName, nextFlowGraph);
                                 }
                                 return variableNameToFlowGraph;
@@ -457,8 +452,7 @@ public class ForwardFlow extends JavaVisitor<Integer> {
                     }
                 }
 
-                if (ancestor instanceof J.Ternary) {
-                    J.Ternary ternary = (J.Ternary) ancestor;
+                if (ancestor instanceof J.Ternary ternary) {
                     Object previousCursorValue = nextFlowGraph.getNode().getCursor().getValue();
                     if (ternary.getTruePart() == previousCursorValue ||
                         ternary.getFalsePart() == previousCursorValue) {
@@ -492,16 +486,16 @@ public class ForwardFlow extends JavaVisitor<Integer> {
                        ancestor instanceof J.VariableDeclarations.NamedVariable
             ) {
                 Expression variable;
-                if (ancestor instanceof J.Assignment) {
-                    variable = ((J.Assignment) ancestor).getVariable();
-                } else if (ancestor instanceof J.AssignmentOperation) {
-                    variable = ((J.AssignmentOperation) ancestor).getVariable();
+                if (ancestor instanceof J.Assignment assignment) {
+                    variable = assignment.getVariable();
+                } else if (ancestor instanceof J.AssignmentOperation operation) {
+                    variable = operation.getVariable();
                 } else {
                     variable = ((J.VariableDeclarations.NamedVariable) ancestor).getName();
                 }
                 variable = variable.unwrap();
-                if (variable instanceof J.Identifier) {
-                    String nextVariableName = ((J.Identifier) variable).getSimpleName();
+                if (variable instanceof J.Identifier identifier) {
+                    String nextVariableName = identifier.getSimpleName();
                     identifierToFlow.put(nextVariableName, nextFlowGraph);
                     break;
                 }

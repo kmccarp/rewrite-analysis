@@ -143,17 +143,17 @@ class Internal {
 
     @Nullable
     static String typePattern(JavaType type) {
-        if (type instanceof JavaType.Primitive) {
+        if (type instanceof JavaType.Primitive primitive) {
             if (type.equals(JavaType.Primitive.String)) {
-                return ((JavaType.Primitive) type).getClassName();
+                return primitive.getClassName();
             }
-            return ((JavaType.Primitive) type).getKeyword();
+            return primitive.getKeyword();
         } else if (type instanceof JavaType.Unknown) {
             return "*";
-        } else if (type instanceof JavaType.FullyQualified) {
-            return ((JavaType.FullyQualified) type).getFullyQualifiedName();
-        } else if (type instanceof JavaType.Array) {
-            JavaType elemType = ((JavaType.Array) type).getElemType();
+        } else if (type instanceof JavaType.FullyQualified qualified) {
+            return qualified.getFullyQualifiedName();
+        } else if (type instanceof JavaType.Array array) {
+            JavaType elemType = array.getElemType();
             return typePattern(elemType) + "[]";
         }
         return null;

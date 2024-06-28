@@ -168,8 +168,7 @@ final class ControlFlowVisualizationVisitor<P> extends JavaIsoVisitor<P> {
 
         @Nullable
         private static String labelTag(J j) {
-            if (j instanceof J.Binary) {
-                J.Binary binary = (J.Binary) j;
+            if (j instanceof J.Binary binary) {
                 switch (binary.getOperator()) {
                     case And:
                         return "&&";
@@ -223,8 +222,7 @@ final class ControlFlowVisualizationVisitor<P> extends JavaIsoVisitor<P> {
             Map<ControlFlowNode, Integer> blockNumbers,
             J leader
     ) {
-        if (leader instanceof J.ControlParentheses) {
-            J.ControlParentheses<?> leaderControlParentheses = (J.ControlParentheses<?>) leader;
+        if (leader instanceof J.ControlParentheses<?> leaderControlParentheses) {
             ControlFlowNode block = leadersToNodes.get(leaderControlParentheses.getTree());
 
             List<String> predecessors =

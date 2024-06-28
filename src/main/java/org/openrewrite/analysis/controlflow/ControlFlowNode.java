@@ -233,15 +233,12 @@ public abstract class ControlFlowNode {
         @Override
         String toVisualizerString() {
             J condition = this.getCondition();
-            if (condition instanceof J.Literal) {
-                J.Literal literal = (J.Literal) condition;
+            if (condition instanceof J.Literal literal) {
                 if (literal.getValue() instanceof Boolean) {
                     return literal.getValue().toString();
                 }
             }
-            if (condition instanceof J.Case) {
-                // Self loathing
-                J.Case caseStatement = (J.Case) condition;
+            if (condition instanceof J.Case caseStatement) {
                 String caseString = caseStatement.toString();
                 if (caseStatement.getType() == J.Case.Type.Statement) {
                     return caseString.substring(0, caseString.indexOf(":") + 1);
@@ -283,7 +280,7 @@ public abstract class ControlFlowNode {
             if (node.isEmpty()) {
                 throw new ControlFlowIllegalStateException(exceptionMessageBuilder("Basic block has no nodes!").addPredecessors(this));
             }
-            return node.get(0).getValue();
+            return node.getFirst().getValue();
         }
 
         boolean hasLeader() {
@@ -301,10 +298,9 @@ public abstract class ControlFlowNode {
                     getNodeValues()
                             .stream()
                             .flatMap(v -> {
-                                if (v instanceof J.Case) {
-                                    J.Case caseStatement = (J.Case) v;
-                                    if (caseStatement.getExpressions().size() == 1 && caseStatement.getExpressions().get(0) instanceof J.Literal) {
-                                        return Stream.of(v, caseStatement.getExpressions().get(0));
+                                if (v instanceof J.Case caseStatement) {
+                                    if (caseStatement.getExpressions().size() == 1 && caseStatement.getExpressions().getFirst() instanceof J.Literal) {
+                                        return Stream.of(v, caseStatement.getExpressions().getFirst());
                                     }
                                 }
                                 return Stream.of(v);
@@ -331,7 +327,7 @@ public abstract class ControlFlowNode {
             }
             // Obtains the deepest J.Block cursor in the AST which
             // encompasses all the cursors in the basic block.
-            return shortestList.get(shortestList.size() - 1);
+            return shortestList.getLast();
         }
 
         private List<J> getNodeValues() {
@@ -355,7 +351,7 @@ public abstract class ControlFlowNode {
             if (node.isEmpty()) {
                 throw new ControlFlowIllegalStateException(exceptionMessageBuilder("Cannot add condition node to empty basic block").addPredecessors(this));
             }
-            return addSuccessor(ControlFlowNode.ConditionNode.create(node.get(node.size() - 1), nextConditionDefault));
+            return addSuccessor(ControlFlowNode.ConditionNode.create(node.getLast(), nextConditionDefault));
         }
 
         @Override
@@ -363,7 +359,7 @@ public abstract class ControlFlowNode {
             if (node.isEmpty()) {
                 throw new ControlFlowIllegalStateException(exceptionMessageBuilder("Cannot add condition node to empty basic block").addPredecessors(this));
             }
-            return addSuccessor(ControlFlowNode.ConditionNode.create(node.get(node.size() - 1), !nextConditionDefault));
+            return addSuccessor(ControlFlowNode.ConditionNode.create(node.getLast(), !nextConditionDefault));
         }
 
         @Override

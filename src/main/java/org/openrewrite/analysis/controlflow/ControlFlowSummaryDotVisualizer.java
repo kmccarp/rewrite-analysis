@@ -31,9 +31,12 @@ final class ControlFlowSummaryDotVisualizer implements ControlFlowDotFileGenerat
         sb.append("    rankdir = TB;\n");
         sb.append("    edge [fontname=Arial];");
         if (darkMode) {
-            sb.append("\n    graph [bgcolor=black];\n" +
-                    "    node [color=white, fontcolor=whitesmoke];\n" +
-                    "    edge [fontname=Arial; color=whitesmoke];");
+            sb.append("""
+                    
+                        graph [bgcolor=black];
+                        node [color=white, fontcolor=whitesmoke];
+                        edge [fontname=Arial; color=whitesmoke];\
+                    """);
         }
         final Map<ControlFlowNode, Integer> abstractToVisualNodeMapping = new IdentityHashMap<>(summary.getAllNodes().size());
         // Create a predictable iteration order to make unit tests consistent
@@ -51,8 +54,7 @@ final class ControlFlowSummaryDotVisualizer implements ControlFlowDotFileGenerat
             ControlFlowNode node = toNodeText.node;
             String nodeText = toNodeText.nodeText;
             abstractToVisualNodeMapping.put(node, i);
-            if (node instanceof ControlFlowNode.GraphTerminator) {
-                ControlFlowNode.GraphTerminator terminator = (ControlFlowNode.GraphTerminator) node;
+            if (node instanceof ControlFlowNode.GraphTerminator terminator) {
                 if (terminator.getGraphType().equals(ControlFlowNode.GraphType.METHOD_BODY_OR_STATIC_INITIALIZER_OR_INSTANCE_INITIALIZER)) {
                     if (node instanceof ControlFlowNode.Start) {
                         vizSrc = i;
@@ -71,8 +73,7 @@ final class ControlFlowSummaryDotVisualizer implements ControlFlowDotFileGenerat
 
         for (NodeToNodeText toNodeText : nodeToNodeText) {
             ControlFlowNode node = toNodeText.node;
-            if (node instanceof ControlFlowNode.ConditionNode) {
-                ControlFlowNode.ConditionNode cn = (ControlFlowNode.ConditionNode) node;
+            if (node instanceof ControlFlowNode.ConditionNode cn) {
                 sb.append("\n    ").append(abstractToVisualNodeMapping.get(node))
                         .append(" -> ").append(abstractToVisualNodeMapping.get(cn.getTruthySuccessor()));
                 if (!cn.isAlwaysFalse()) {
@@ -142,15 +143,13 @@ final class ControlFlowSummaryDotVisualizer implements ControlFlowDotFileGenerat
         }
 
         private int comparingType() {
-            if (node instanceof ControlFlowNode.Start) {
-                ControlFlowNode.Start start = (ControlFlowNode.Start) node;
+            if (node instanceof ControlFlowNode.Start start) {
                 if (ControlFlowNode.GraphType.METHOD_BODY_OR_STATIC_INITIALIZER_OR_INSTANCE_INITIALIZER.equals(start.getGraphType())) {
                     return -2;
                 } else {
                     return -1;
                 }
-            } else if (node instanceof ControlFlowNode.End) {
-                ControlFlowNode.End end = (ControlFlowNode.End) node;
+            } else if (node instanceof ControlFlowNode.End end) {
                 if (ControlFlowNode.GraphType.METHOD_BODY_OR_STATIC_INITIALIZER_OR_INSTANCE_INITIALIZER.equals(end.getGraphType())) {
                     return 2;
                 } else {

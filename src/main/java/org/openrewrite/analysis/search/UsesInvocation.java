@@ -42,14 +42,13 @@ public class UsesInvocation<P> extends JavaIsoVisitor<P> {
 
     @Override
     public J visit(@Nullable Tree tree, P p) {
-        if (tree instanceof JavaSourceFile) {
-            JavaSourceFile cu = (JavaSourceFile) tree;
+        if (tree instanceof JavaSourceFile cu) {
             for (JavaType.Method type : cu.getTypesInUse().getUsedMethods()) {
                 if (invocationMatcher.matches(type)) {
                     return SearchResult.found(cu);
                 }
             }
-            return (J) tree;
+            return cu;
         }
         return super.visit(tree, p);
     }

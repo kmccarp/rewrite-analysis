@@ -63,9 +63,9 @@ final class MethodTypeUtils {
         private final Map<JavaType.GenericTypeVariable, JavaType> typeVariableMap = new HashMap<>();
 
         JavaType solve(JavaType accessType, JavaType declaredType) {
-            if (declaredType instanceof JavaType.GenericTypeVariable) {
+            if (declaredType instanceof JavaType.GenericTypeVariable variable) {
                 // If we've already solved for this type variable, return the solved type
-                return typeVariableMap.computeIfAbsent((JavaType.GenericTypeVariable) declaredType, __ -> accessType);
+                return typeVariableMap.computeIfAbsent(variable, __ -> accessType);
             } else {
                 // If this is not a GenericTypeVariable, then we can just return the declared type
                 return declaredType;

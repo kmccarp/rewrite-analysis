@@ -87,12 +87,12 @@ public final class Guard {
                         v instanceof J.Block
         ).getValue();
         J.ControlParentheses<?> parentControlParentheses;
-        if (parent instanceof J.If) {
-            parentControlParentheses = ((J.If) parent).getIfCondition();
-        } else if (parent instanceof J.WhileLoop) {
-            parentControlParentheses = ((J.WhileLoop) parent).getCondition();
-        } else if (parent instanceof J.DoWhileLoop) {
-            parentControlParentheses = ((J.DoWhileLoop) parent).getWhileCondition();
+        if (parent instanceof J.If if1) {
+            parentControlParentheses = if1.getIfCondition();
+        } else if (parent instanceof J.WhileLoop loop) {
+            parentControlParentheses = loop.getCondition();
+        } else if (parent instanceof J.DoWhileLoop loop) {
+            parentControlParentheses = loop.getWhileCondition();
         } else {
             parentControlParentheses = null;
         }
@@ -129,7 +129,7 @@ public final class Guard {
                 e instanceof J.Assignment ||
                 e instanceof J.AssignmentOperation ||
                 e instanceof J.Ternary ||
-                (e instanceof J.Unary && ((J.Unary) e).getOperator() == J.Unary.Type.Not);
+                (e instanceof J.Unary u && u.getOperator() == J.Unary.Type.Not);
     }
 
     private static Optional<JavaType> getTypeSafe(Cursor c, Expression e) {
@@ -137,8 +137,7 @@ public final class Guard {
         if (type != null && !JavaType.Unknown.getInstance().equals(type)) {
             return Optional.of(type);
         }
-        if (e instanceof J.Binary) {
-            J.Binary binary = (J.Binary) e;
+        if (e instanceof J.Binary binary) {
             switch (binary.getOperator()) {
                 case And:
                 case Or:
@@ -154,20 +153,17 @@ public final class Guard {
             }
         } else if (e instanceof J.InstanceOf) {
             return Optional.of(JavaType.Primitive.Boolean);
-        } else if (e instanceof J.Unary) {
-            J.Unary unary = (J.Unary) e;
+        } else if (e instanceof J.Unary unary) {
             if (unary.getOperator() == J.Unary.Type.Not) {
                 return Optional.of(JavaType.Primitive.Boolean);
             }
-        } else if (e instanceof J.MethodInvocation) {
-            J.MethodInvocation methodInvocation = (J.MethodInvocation) e;
+        } else if (e instanceof J.MethodInvocation methodInvocation) {
             if ("equals".equals(methodInvocation.getSimpleName())) {
                 return Optional.of(JavaType.Primitive.Boolean);
             }
         }
         J firstEnclosing = c.getParentOrThrow().firstEnclosing(J.class);
-        if (firstEnclosing instanceof J.Binary) {
-            J.Binary binary = (J.Binary) firstEnclosing;
+        if (firstEnclosing instanceof J.Binary binary) {
             if (binary.getLeft() == e || binary.getRight() == e) {
                 switch (binary.getOperator()) {
                     case And:
@@ -177,18 +173,15 @@ public final class Guard {
                         break;
                 }
             }
-        } else if (firstEnclosing instanceof J.Unary) {
-            J.Unary unary = (J.Unary) firstEnclosing;
+        } else if (firstEnclosing instanceof J.Unary unary) {
             if (unary.getExpression() == e && unary.getOperator() == J.Unary.Type.Not) {
                 return Optional.of(JavaType.Primitive.Boolean);
             }
-        } else if (firstEnclosing instanceof J.Ternary) {
-            J.Ternary ternary = (J.Ternary) firstEnclosing;
+        } else if (firstEnclosing instanceof J.Ternary ternary) {
             if (ternary.getCondition() == e) {
                 return Optional.of(JavaType.Primitive.Boolean);
             }
-        } else if (firstEnclosing instanceof J.ControlParentheses) {
-            J.ControlParentheses<?> controlParentheses = (J.ControlParentheses<?>) firstEnclosing;
+        } else if (firstEnclosing instanceof J.ControlParentheses<?> controlParentheses) {
             if (controlParentheses.getTree() == e) {
                 if (Optional.ofNullable(c.getParentOrThrow().firstEnclosing(J.If.class)).map(J.If::getIfCondition).map(condition -> condition == controlParentheses).orElse(false) ||
                         Optional.ofNullable(c.getParentOrThrow().firstEnclosing(J.WhileLoop.class)).map(J.WhileLoop::getCondition).map(condition -> condition == controlParentheses).orElse(false) ||
@@ -199,24 +192,20 @@ public final class Guard {
                     return getTypeSafe(parent, parent.getValue());
                 }
             }
-        } else if (firstEnclosing instanceof J.Parentheses) {
-            J.Parentheses<?> parentheses = (J.Parentheses<?>) firstEnclosing;
+        } else if (firstEnclosing instanceof J.Parentheses<?> parentheses) {
             if (parentheses.getTree() == e) {
                 Cursor parent = c.getParentTreeCursor();
                 return getTypeSafe(parent, parent.getValue());
             }
-        } else if (firstEnclosing instanceof J.VariableDeclarations.NamedVariable) {
-            J.VariableDeclarations.NamedVariable namedVariable = (J.VariableDeclarations.NamedVariable) firstEnclosing;
+        } else if (firstEnclosing instanceof J.VariableDeclarations.NamedVariable namedVariable) {
             if (namedVariable.getInitializer() == e) {
                 return Optional.ofNullable(namedVariable.getType());
             }
-        } else if (firstEnclosing instanceof J.Assignment) {
-            J.Assignment assignment = (J.Assignment) firstEnclosing;
+        } else if (firstEnclosing instanceof J.Assignment assignment) {
             if (assignment.getAssignment() == e) {
                 return Optional.ofNullable(assignment.getType());
             }
-        } else if (firstEnclosing instanceof J.ForLoop.Control) {
-            J.ForLoop.Control control = (J.ForLoop.Control) firstEnclosing;
+        } else if (firstEnclosing instanceof J.ForLoop.Control control) {
             if (control.getCondition() == e) {
                 return Optional.of(JavaType.Primitive.Boolean);
             }

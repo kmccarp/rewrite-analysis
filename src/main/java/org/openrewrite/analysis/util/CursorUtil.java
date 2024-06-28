@@ -41,9 +41,9 @@ public class CursorUtil {
                 if (J.Block.isStaticOrInitBlock(nextCursor)) {
                     return Option.some(nextCursor);
                 }
-            } else if (next instanceof J.MethodDeclaration) {
-                if (methodDeclarationBlockCursor == null && ((J.MethodDeclaration) next).getBody() != null) {
-                    methodDeclarationBlockCursor = new Cursor(nextCursor, ((J.MethodDeclaration) next).getBody());
+            } else if (next instanceof J.MethodDeclaration declaration) {
+                if (methodDeclarationBlockCursor == null && declaration.getBody() != null) {
+                    methodDeclarationBlockCursor = new Cursor(nextCursor, declaration.getBody());
                 }
                 return Option.some(methodDeclarationBlockCursor);
             }

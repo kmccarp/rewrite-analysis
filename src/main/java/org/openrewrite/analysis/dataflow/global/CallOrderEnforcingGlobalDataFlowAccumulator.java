@@ -37,10 +37,12 @@ final class CallOrderEnforcingGlobalDataFlowAccumulator implements GlobalDataFlo
     public GlobalDataFlow.Summary summary(Cursor cursor) {
         if (!isScanned.get()) {
             throw new IllegalStateException(
-                    "GlobalDataFlow.Accumulator.summary(Cursor) called before GlobalDataFlow.Accumulator.scanner()\n" +
-                    "\n" +
-                    "\t===> Ensure that Global Data Flow is used in a Scanning Recipe <===\n" +
-                    "\n"
+                    """
+                    GlobalDataFlow.Accumulator.summary(Cursor) called before GlobalDataFlow.Accumulator.scanner()
+                    
+                    	===> Ensure that Global Data Flow is used in a Scanning Recipe <===
+                    
+                    """
             );
         }
         return decorated.summary(cursor);

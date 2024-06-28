@@ -43,7 +43,7 @@ public class SinkFlowSummary {
         List<List<Cursor>> flows = getFlows();
         List<Cursor> sinkCursors = new ArrayList<>(flows.size());
         for (List<Cursor> flow : flows) {
-            sinkCursors.add(flow.get(flow.size() - 1));
+            sinkCursors.add(flow.getLast());
         }
         return sinkCursors;
     }

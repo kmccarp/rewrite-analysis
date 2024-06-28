@@ -60,7 +60,7 @@ public interface InvocationMatcher {
      * @return True if the invocation or constructor matches the criteria of this matcher.
      */
     default boolean matches(@Nullable Expression maybeMethod) {
-        return maybeMethod instanceof MethodCall && matches(((MethodCall) maybeMethod).getMethodType());
+        return maybeMethod instanceof MethodCall mc && matches(mc.getMethodType());
     }
 
     static InvocationMatcher from(Collection<? extends InvocationMatcher> matchers) {
@@ -225,8 +225,8 @@ public interface InvocationMatcher {
 
         private static Optional<MethodCall> nearestMethodCall(Cursor cursor) {
             Tree closestJ = cursor.getParentTreeCursor().getValue();
-            if (closestJ instanceof MethodCall) {
-                return Optional.of((MethodCall) closestJ);
+            if (closestJ instanceof MethodCall call) {
+                return Optional.of(call);
             }
             return Optional.empty();
         }

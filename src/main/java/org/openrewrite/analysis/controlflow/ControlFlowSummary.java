@@ -100,8 +100,8 @@ public final class ControlFlowSummary {
     private void recurseComputeReachableBasicBlock(ControlFlowNode visit, BarrierGuardPredicate predicate, Set<ControlFlowNode> reachable) {
         reachable.add(visit);
         final Queue<ControlFlowNode> toVisit = new LinkedList<>();
-        if (visit instanceof ControlFlowNode.ConditionNode) {
-            toVisit.addAll(((ControlFlowNode.ConditionNode) visit).visit(predicate));
+        if (visit instanceof ControlFlowNode.ConditionNode node) {
+            toVisit.addAll(node.visit(predicate));
         } else if (!(visit instanceof ControlFlowNode.End)) {
             toVisit.addAll(visit.getSuccessors());
         } else {
